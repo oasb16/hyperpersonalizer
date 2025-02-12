@@ -5,7 +5,6 @@ import requests  # or use an official OpenAI client library
 app = Flask(__name__)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
