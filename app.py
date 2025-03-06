@@ -37,7 +37,7 @@ def authorize():
     print("TOKEN RESPONSE:", token)
     user = token.get('userinfo', {})
     session['user'] = user
-    return redirect(url_for('index'))
+    return redirect(url_for('home'))
 
 @app.route("/logout")
 def logout():
