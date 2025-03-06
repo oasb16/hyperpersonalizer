@@ -18,6 +18,7 @@ oauth.register(
     client_kwargs={"scope": "openid email profile"},
 )
 
+
 @app.route("/")
 def home():
     user = session.get("user")
