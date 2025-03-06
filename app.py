@@ -12,11 +12,12 @@ oauth = OAuth(app)
 # Register AWS Cognito OIDC
 oauth.register(
     name="oidc",
-    client_id="71mr4dkg933tqhsnokqd9nk13n",
+    client_id="5rvblhjkh3ocffgdties6g7gnn",
     client_secret=os.getenv("COGNITO_CLIENT_SECRET"),
-    server_metadata_url="https://cognito-idp.us-east-1.amazonaws.com/us-east-1_l2tI8cmwZ/.well-known/openid-configuration",
+    server_metadata_url="https://cognito-idp.us-east-1.amazonaws.com/us-east-1_EoTraXkZP/.well-known/openid-configuration",
     client_kwargs={"scope": "openid email profile"},
 )
+
 
 @app.route("/")
 def home():
@@ -29,12 +30,16 @@ def home():
 def login():
     return oauth.oidc.authorize_redirect("https://hyperpersonalizer-a0808b1ef9ed.herokuapp.com/authorize")
 
-@app.route("/authorize")
 def authorize():
-    token = oauth.oidc.authorize_access_token()
-    user = token["userinfo"]
-    session["user"] = user  # Store user info in session
-    return redirect(url_for("home"))
+    token = oauth.oidc.authorize_access_token() 
+    # Debugging: Print the full token response
+    print("TOKEN RESPONSE:", token)
+    user = token.get('userinfo', {})
+    # Check if "name" exists, otherwise use a fallback
+    if "name" not in user:
+        return jsonify({"error": "Cognito did not return 'name' attribute"}), 400
+    session['user'] = user
+    return redirect(url_for('index'))
 
 @app.route("/logout")
 def logout():
