@@ -27,7 +27,7 @@ def home():
 
 @app.route('/login')
 def login():
-    return oauth.oidc.authorize_redirect("https://hyperpersonalizer-a0808b1ef9ed.herokuapp.com/authorize"
+    return oauth.oidc.authorize_redirect("https://hyperpersonalizer-a0808b1ef9ed.herokuapp.com/authorize")
 
 @app.route("/authorize")
 def authorize():
