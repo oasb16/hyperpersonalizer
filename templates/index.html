@@ -7,16 +7,23 @@
     <link rel="stylesheet" href="/static/style.css">
     <script>
         function submitForm() {
+            let primaryTrait = document.getElementById("primary_trait");
+            let secondaryTrait = document.getElementById("secondary_trait");
+            let decisionMaking = document.getElementById("decision_making");
+            let communication = document.getElementById("communication");
+
+            if (!primaryTrait || !secondaryTrait || !decisionMaking || !communication) {
+                console.error("One or more elements not found in the DOM!");
+                return;
+            }
+
             let userData = {
                 user_id: "12345",
-                "Primary Trait": document.getElementById("primary_trait").value,
-                "Secondary Trait": document.getElementById("secondary_trait").value,
-                "Decision-Making Style": document.getElementById("decision_making").value,
-                "Communication Style": document.getElementById("communication").value,
-                "Emotional Intelligence": document.getElementById("emotional_intelligence").value,
-                "Adaptability": document.getElementById("adaptability").value
+                "Primary Trait": primaryTrait.value,
+                "Secondary Trait": secondaryTrait.value,
+                "Decision-Making Style": decisionMaking.value,
+                "Communication Style": communication.value
             };
-
             fetch("/map-persona", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
