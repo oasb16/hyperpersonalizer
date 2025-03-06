@@ -18,7 +18,6 @@ oauth.register(
     client_kwargs={"scope": "openid email profile"},
 )
 
-
 @app.route("/")
 def home():
     user = session.get("user")
@@ -30,6 +29,7 @@ def home():
 def login():
     return oauth.oidc.authorize_redirect("https://hyperpersonalizer-a0808b1ef9ed.herokuapp.com/authorize")
 
+@app.route('/authorize')
 def authorize():
     token = oauth.oidc.authorize_access_token() 
     # Debugging: Print the full token response
