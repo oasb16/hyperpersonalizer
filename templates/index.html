@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Persona Matcher</title>
+    <script>
+        function submitForm() {
+            let userData = {
+                user_id: "12345",
+                thinking_style: document.getElementById("thinking_style").value,
+                decision_making: document.getElementById("decision_making").value,
+                risk_tolerance: document.getElementById("risk_tolerance").value
+            };
+            
+            fetch("/map-persona", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(userData)
+            })
+            .then(response => response.json())
+            .then(data => alert("You are most likely a: " + data.persona))
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</head>
+<body>
+    <h1>Find Your Persona</h1>
+    <label>Thinking Style:</label>
+    <select id="thinking_style">
+        <option value="Analytical Thinker">Analytical Thinker</option>
+        <option value="Innovative">Innovative</option>
+    </select>
+    <br><br>
+
+    <label>Decision Making:</label>
+    <select id="decision_making">
+        <option value="Decisive Leader">Decisive Leader</option>
+        <option value="Risk-Taker">Risk-Taker</option>
+    </select>
+    <br><br>
+
+    <label>Risk Tolerance:</label>
+    <select id="risk_tolerance">
+        <option value="High">High</option>
+        <option value="Low">Low</option>
+    </select>
+    <br><br>
+
+    <button onclick="submitForm()">Submit</button>
+</body>
+</html>
