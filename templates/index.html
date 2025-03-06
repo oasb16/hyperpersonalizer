@@ -1,50 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Persona Matcher</title>
+    <link rel="stylesheet" href="/static/style.css">
     <script>
         function submitForm() {
             let userData = {
                 user_id: "12345",
-                thinking_style: document.getElementById("thinking_style").value,
-                decision_making: document.getElementById("decision_making").value,
-                risk_tolerance: document.getElementById("risk_tolerance").value
+                "Primary Trait": document.getElementById("primary_trait").value,
+                "Secondary Trait": document.getElementById("secondary_trait").value,
+                "Decision-Making Style": document.getElementById("decision_making").value,
+                "Communication Style": document.getElementById("communication").value,
+                "Emotional Intelligence": document.getElementById("emotional_intelligence").value,
+                "Adaptability": document.getElementById("adaptability").value
             };
-            
+
             fetch("/map-persona", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(userData)
             })
             .then(response => response.json())
-            .then(data => alert("You are most likely a: " + data.persona))
+            .then(data => {
+                document.getElementById("result").innerHTML = 
+                    `<h2>Your Persona: ${data.persona}</h2>
+                    <p>Match Likelihood: ${JSON.stringify(data.likelihood, null, 2)}</p>`;
+            })
             .catch(error => console.error("Error:", error));
         }
     </script>
 </head>
 <body>
-    <h1>Find Your Persona</h1>
-    <label>Thinking Style:</label>
-    <select id="thinking_style">
-        <option value="Analytical Thinker">Analytical Thinker</option>
-        <option value="Innovative">Innovative</option>
-    </select>
-    <br><br>
+    <div class="container">
+        <h1>Discover Your Persona</h1>
+        
+        <label>Primary Trait:</label>
+        <select id="primary_trait">
+            <option value="Analytical Thinker">Analytical Thinker</option>
+            <option value="Innovative">Innovative</option>
+        </select>
+        
+        <label>Secondary Trait:</label>
+        <select id="secondary_trait">
+            <option value="Decisive Leader">Decisive Leader</option>
+            <option value="Risk-Taker">Risk-Taker</option>
+        </select>
+        
+        <label>Decision Making:</label>
+        <select id="decision_making">
+            <option value="Data-driven">Data-driven</option>
+            <option value="Emotional">Emotional</option>
+        </select>
+        
+        <label>Communication Style:</label>
+        <select id="communication">
+            <option value="Direct">Direct</option>
+            <option value="Diplomatic">Diplomatic</option>
+        </select>
 
-    <label>Decision Making:</label>
-    <select id="decision_making">
-        <option value="Decisive Leader">Decisive Leader</option>
-        <option value="Risk-Taker">Risk-Taker</option>
-    </select>
-    <br><br>
-
-    <label>Risk Tolerance:</label>
-    <select id="risk_tolerance">
-        <option value="High">High</option>
-        <option value="Low">Low</option>
-    </select>
-    <br><br>
-
-    <button onclick="submitForm()">Submit</button>
+        <button onclick="submitForm()">Find My Persona</button>
+        
+        <div id="result"></div>
+    </div>
 </body>
 </html>

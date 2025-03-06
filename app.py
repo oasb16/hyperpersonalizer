@@ -9,20 +9,28 @@ def home():
 
 @app.route('/map-persona', methods=['POST'])
 def map_persona():
-    data = request.json  # Expect JSON input
-    best_match, scores = match_persona(data)
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({"error": "Invalid data format"}), 400
 
-    # Save to DynamoDB
-    table.put_item(
-        Item={
-            "user_id": data.get("user_id"),
-            "responses": data,
-            "matched_persona": best_match,
-            "scores": scores
-        }
-    )
+        best_match, scores = match_persona(data)
 
-    return jsonify({"persona": best_match, "likelihood": scores})
+        # Save to DynamoDB
+        table.put_item(
+            Item={
+                "user_id": data.get("user_id"),
+                "responses": data,
+                "matched_persona": best_match,
+                "scores": scores
+            }
+        )
+
+        return jsonify({"persona": best_match, "likelihood": scores})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
