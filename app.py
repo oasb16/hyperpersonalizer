@@ -36,9 +36,6 @@ def authorize():
     # Debugging: Print the full token response
     print("TOKEN RESPONSE:", token)
     user = token.get('userinfo', {})
-    # Check if "name" exists, otherwise use a fallback
-    if "name" not in user:
-        return jsonify({"error": "Cognito did not return 'name' attribute"}), 400
     session['user'] = user
     return redirect(url_for('index'))
 
