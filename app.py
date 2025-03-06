@@ -20,6 +20,7 @@ def map_persona():
         # Save to DynamoDB
         table.put_item(
             Item={
+                "Persona Name": best_match,
                 "user_id": data.get("user_id"),
                 "responses": data,
                 "matched_persona": best_match,
