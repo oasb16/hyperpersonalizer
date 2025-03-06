@@ -18,15 +18,6 @@ oauth.register(
     client_kwargs={"scope": "openid email phone profile"},
 )
 
-@app.after_request
-def apply_csp(response):
-    response.headers["Content-Security-Policy"] = (
-        "default-src 'self'; "
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-        "font-src 'self' https://fonts.gstatic.com;"
-    )
-    return response
-
 @app.route("/")
 def home():
     user = session.get("user")
