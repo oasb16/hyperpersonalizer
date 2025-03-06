@@ -25,9 +25,9 @@ def home():
         return render_template("dashboard.html", user=user)
     return render_template("index.html")
 
-@app.route("/login")
+@app.route('/login')
 def login():
-    return oauth.oidc.authorize_redirect(url_for("authorize", _external=True))
+    return oauth.oidc.authorize_redirect("https://hyperpersonalizer-a0808b1ef9ed.herokuapp.com/authorize"
 
 @app.route("/authorize")
 def authorize():
