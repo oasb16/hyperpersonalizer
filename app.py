@@ -15,7 +15,7 @@ oauth.register(
     client_id="71mr4dkg933tqhsnokqd9nk13n",
     client_secret=os.getenv("COGNITO_CLIENT_SECRET"),
     server_metadata_url="https://cognito-idp.us-east-1.amazonaws.com/us-east-1_l2tI8cmwZ/.well-known/openid-configuration",
-    client_kwargs={"scope": "openid email phone profile"},
+    client_kwargs={"scope": "openid email profile"},
 )
 
 @app.route("/")
