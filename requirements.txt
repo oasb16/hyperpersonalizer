@@ -14,3 +14,4 @@ flask_sqlalchemy
 flask_oauthlib
 flask_dance
 flask-cors
+

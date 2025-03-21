@@ -1,39 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Dashboard</title>
+    <title>Persona Questionnaire</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script>
-        function submitForm() {
-            let userData = {};
-            document.querySelectorAll("input, select").forEach(input => {
-                userData[input.id] = input.value;
-            });
+        async function submitForm() {
+            const formData = new FormData(document.getElementById('personaForm'));
+            const data = {};
+            formData.forEach((value, key) => data[key] = value);
 
-            fetch("/map-persona", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(userData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("result").innerHTML =
-                    `<h2>Your Persona: ${data.persona}</h2>
-                    <p>Match Likelihood: ${JSON.stringify(data.likelihood, null, 2)}</p>`;
-            })
-            .catch(error => console.error("Error:", error));
+            const res = await fetch('/map-persona', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const json = await res.json();
+            document.getElementById('result').innerText = JSON.stringify(json.result, null, 2);
         }
     </script>
 </head>
 <body class="container mt-5">
-    <h1>Welcome, {{ user['email'] }}!</h1>
-    <a href="/logout" class="btn btn-danger">Logout</a>
-
-    <h3>Answer the questions below to find your persona:</h3>
-
-    <input type="text" id="Primary Trait" placeholder="Primary Trait" class="form-control mb-3" />
-    <button class="btn btn-success" onclick="submitForm()">Find My Persona</button>
-
-    <div id="result" class="mt-3"></div>
+    <h2>Persona Mapping</h2>
+    <form id="personaForm" onsubmit="event.preventDefault(); submitForm();">
+        <input type="text" class="form-control mb-2" name="Primary Trait" placeholder="Your thinking trait">
+        <input type="text" class="form-control mb-2" name="Archetype" placeholder="Your archetype role">
+        <input type="text" class="form-control mb-2" name="Decision-Making Style" placeholder="Decision style">
+        <input type="text" class="form-control mb-2" name="Preferred Problem-Solving Approach" placeholder="Problem-solving style">
+        <input type="text" class="form-control mb-2" name="Adaptability" placeholder="Adaptability level">
+        <button class="btn btn-success" type="submit">Map Me</button>
+    </form>
+    <pre id="result" class="mt-4"></pre>
 </body>
 </html>
+

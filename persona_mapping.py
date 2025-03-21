@@ -1,63 +1,61 @@
-import boto3
-from config import AWS_REGION, AWS_ACCESS_KEY, AWS_SECRET_KEY, DYNAMODB_TABLE
 
-# AWS DynamoDB client setup
-dynamodb = boto3.resource(
-    'dynamodb',
-    region_name=AWS_REGION,
+# persona_mapping.py
+import boto3, logging, openai, time
+from flask import request, jsonify
+from config import AWS_REGION, AWS_DYNAMODB_TABLE_NAME, AWS_ACCESS_KEY, AWS_SECRET_KEY, OPENAI_API_KEY
+
+# Logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# OpenAI Config
+openai.api_key = OPENAI_API_KEY
+
+# DynamoDB
+session = boto3.Session(
     aws_access_key_id=AWS_ACCESS_KEY,
-    aws_secret_access_key=AWS_SECRET_KEY
+    aws_secret_access_key=AWS_SECRET_KEY,
+    region_name=AWS_REGION
 )
-table = dynamodb.Table(DYNAMODB_TABLE)
+dynamodb = session.resource("dynamodb")
+table = dynamodb.Table(AWS_DYNAMODB_TABLE_NAME)
 
-# Define Personas (Enhanced)
-PERSONAS = [
-    {
-        "Persona Name": "Strategic Visionary",
-        "Primary Trait": "Analytical Thinker",
-        "Secondary Trait": "Decisive Leader",
-        "Archetype": "The Architect",
-        "Description": "A high-level thinker who excels at planning long-term goals and strategies.",
-        "Real-World Example": "Elon Musk",
-        "Strengths": ["Long-term planning", "Innovation", "Risk management"],
-        "Weaknesses": ["May overlook short-term issues", "Sometimes too idealistic"],
-        "Decision-Making Style": "Data-driven with calculated risk-taking",
-        "Communication Style": "Clear, direct, and visionary",
-        "Emotional Intelligence": "Moderate – prioritizes logic over emotion",
-        "Best Fit Roles": ["CEO", "CTO", "Futurist", "Strategic Consultant"],
-        "Ideal Work Environment": "Fast-paced, innovation-driven, highly autonomous",
-        "Motivations": ["Solving complex problems", "Building impactful projects"],
-        "Challenges": ["Managing operational details", "Balancing vision with execution"],
-        "Famous Counterparts": ["Steve Jobs", "Nikola Tesla", "Jeff Bezos"],
-        "Personality Alignment": {
-            "MBTI": "INTJ",
-            "Big Five": {
-                "Openness": "High",
-                "Conscientiousness": "High",
-                "Extraversion": "Moderate",
-                "Agreeableness": "Low",
-                "Neuroticism": "Low"
-            }
-        },
-        "Influences": ["Science fiction", "Philosophy", "Systems thinking"],
-        "Preferred Problem-Solving Approach": "Systems-based analysis with an experimental mindset",
-        "Adaptability": "High – thrives in uncertainty and rapid change",
-        "Leadership Style": "Transformational – inspires others towards a bold vision"
-    }
-]
+def analyze_with_gpt(persona_input):
+    prompt = f"""
+    You are a hyper-personalization engine. Analyze the following user attributes and map to the most likely persona among a database of 18,711:
 
-# Function to match user to persona based on responses
-def match_persona(user_responses):
-    scores = {persona["Persona Name"]: 0 for persona in PERSONAS}
+    {persona_input}
 
-    for persona in PERSONAS:
-        for key in persona:
-            if isinstance(persona[key], list):
-                scores[persona["Persona Name"]] += sum(1 for trait in persona[key] if trait in user_responses.get(key, []))
-            elif isinstance(persona[key], dict):
-                scores[persona["Persona Name"]] += sum(1 for subkey in persona[key] if user_responses.get(key, {}).get(subkey) == persona[key][subkey])
-            elif user_responses.get(key) == persona[key]:
-                scores[persona["Persona Name"]] += 2
+    Return a JSON with:
+    - Persona Name
+    - Explanation of Match
+    - Relevance Score (0–100)
+    - Confidence Label (High, Medium, Low)
+    """
+    response = openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.4
+    )
+    return response.choices[0].message.content
 
-    best_match = max(scores, key=scores.get)
-    return best_match, scores
+def map_persona():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid request, no JSON received"}), 400
+
+        gpt_result = analyze_with_gpt(data)
+
+        item = {
+            "user_id": f"sess_{int(time.time())}",
+            "input": data,
+            "gpt_analysis": gpt_result
+        }
+
+        table.put_item(Item=item)
+        return jsonify({"result": gpt_result}), 200
+
+    except Exception as e:
+        logger.error(f"GPT Mapping Error: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500
